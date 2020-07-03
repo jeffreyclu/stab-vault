@@ -1,12 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import LearningPath from '../../components/collections/collection/collection.component';
+import styles from './all-learning-paths.style.css';
+
+const Accordion = ({ i, expanded, setExpanded }) => {
+  const isOpen = i === expanded;
+
+  // By using `AnimatePresence` to mount and unmount the contents, we can animate
+  // them in and out while also only rendering the contents of open accordions
+  return (
+    <>
+      <motion.header
+        className={styles.Header}
+        initial={false}
+        animate={{ backgroundColor: isOpen ? "pink" : "red" }}
+        onClick={() => setExpanded(isOpen ? false : i)}
+      />
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.section
+            key="content"
+            initial="collapsed"
+            animate="open"
+            exit="collapsed"
+            variants={{
+              open: { opacity: 1, height: "auto" },
+              collapsed: { opacity: 0, height: 10 }
+            }}
+            transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
+          >
+            <>
+              <h1>asdasdas</h1>
+              <h1>askjdhjashkjdhaks</h1>
+            </>
+          </motion.section>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 
 const AllLearningPaths = ({ loggedInUser, userCollections }) => {
   const [collections, setCollections] = useState([]);
   const [searchText, setSearchText] = useState('');
   const { userId } = useParams();
+  const [expanded, setExpanded] = useState(0);
 
   // transform likes to number
   const transformLikes = (colls) => colls.map((collection) => ({
@@ -98,7 +138,6 @@ const AllLearningPaths = ({ loggedInUser, userCollections }) => {
           </select>
         </label>
       </div>
-
       {collectionsToRender[0] !== undefined ? (
         collectionsToRender.map((collection) => (
           <LearningPath
@@ -113,8 +152,13 @@ const AllLearningPaths = ({ loggedInUser, userCollections }) => {
       ) : (
         <li> Loading...</li>
       )}
+      {accordionIds.map((i) => (
+        <Accordion i={i} expanded={expanded} setExpanded={setExpanded} />
+      ))}
     </div>
   );
 };
+
+const accordionIds = [0,1,2,3]
 
 export default AllLearningPaths;
